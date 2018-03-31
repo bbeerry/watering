@@ -1,5 +1,5 @@
+/*调用时提供一个四个元素的unsigned char数组的地址*/ 
 #include<wiringPi.h>
-#include<stdio.h>
 #define POINT 0
 unsigned char dht11(unsigned char * dat)
 {
@@ -21,7 +21,7 @@ unsigned char dht11(unsigned char * dat)
 	//printf("arready get response signal\n");
 	//dht发送响应信号后，再把总线拉高，准备发送数据
 	//发送的数据，每一位(bit)都以低电平开始
-	for(i=0;i<41;i++)
+	for(i=0;i<41;i++)//有41个元素是因为要用一个循环读取dht的响应信号
 	{
 		time=micros();
 		while(digitalRead(POINT)==0);
@@ -32,10 +32,6 @@ unsigned char dht11(unsigned char * dat)
 		bitTime[i]=micros()-time;
 		//bitTime is origin 40bit digital
 	}
-	/*for(i=1;i<41;i++){
-		//printf("%u \\ ",bitTime[i]);
-		if(i%8==0) printf("\n");
-	}*/
 	max=min=bitTime[1];
 	for(i=1;i<41;i++)
 	{
@@ -46,17 +42,17 @@ unsigned char dht11(unsigned char * dat)
 		mid+=bitTime[i];
 	mid-=max;
 	mid-=min;
-	mid/=38;
+	mid/=38;//用平均数区分0和1
 	for(i=1;i<41;i++)
 	{
 		if(bitTime[i]>(mid)) bitTime[i]=1;
 		else bitTime[i]=0;
 	}
 
-	for(i=0;i<8;i++)
+	for(i=0;i<8;i++)//把二进制数据写入
 	{
 		dat[0]<<=1;
-		bitTime[i+1]?(dat[0]|=0x01):(dat[0]&=~0x01);
+		bitTime[i+1]?(dat[0]|=0x01)/*在最后一位写入1*/:(dat[0]&=~0x01)/*在最后一位写入2*/;
 		dat[1]<<=1;
 		bitTime[i+9]?(dat[1] |= 0x01):(dat[1] &= ~0x01);
 		dat[2]<<=1;
@@ -67,9 +63,7 @@ unsigned char dht11(unsigned char * dat)
     bitTime[i+33]?(check |= 0x01):(check &= ~0x01);
 	}
 	if(dat[0]+dat[2]==check)
-	{
 		return 1;
-	}
 	else 
 		return 0;
 }	
