@@ -52,7 +52,7 @@ unsigned char dht11(unsigned char * dat)
 	for(i=0;i<8;i++)//把二进制数据写入
 	{
 		dat[0]<<=1;
-		bitTime[i+1]?(dat[0]|=0x01)/*在最后一位写入1*/:(dat[0]&=~0x01)/*在最后一位写入2*/;
+		bitTime[i+1]?(dat[0]|=0x01)/*在最后一位写入1*/:(dat[0]&=~0x01)/*在最后一位写入0*/;
 		dat[1]<<=1;
 		bitTime[i+9]?(dat[1] |= 0x01):(dat[1] &= ~0x01);
 		dat[2]<<=1;
